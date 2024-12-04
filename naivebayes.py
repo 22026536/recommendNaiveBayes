@@ -68,10 +68,10 @@ le = LabelEncoder()
 df_anime['Type'] = le.fit_transform(df_anime['Type'])
 
 # Lấy ra các thông tin Anime mà người dùng đã yêu thích từ bảng UserFavorites
-favorite_animes = df_favorites[['User_id', 'favorites']]
+favorite_animes = df_favorites[['User_id', 'Favorites']]
 
 # Tạo DataFrame kết hợp các bộ phim yêu thích của người dùng
-favorite_data = df_anime[df_anime['Anime_id'].isin(favorite_animes['favorites'])]
+favorite_data = df_anime[df_anime['Anime_id'].isin(favorite_animes['Favorites'])]
 
 # Đặc trưng đầu vào (features) cho mô hình: Loại bỏ 'Status' và 'Producers', thêm 'Members_Category' và 'JapaneseLevel'
 features = favorite_data[['Score', 'Type', 'Members_Category', 'JapaneseLevel'] + [col for col in df_anime.columns if col not in ['_id', 'Anime_id', 'Name', 'English_Name', 'Favorites', 'Scored_By', 'Member', 'Image_URL', 'JapaneseLevel', 'LastestEpisodeAired']]]
@@ -82,16 +82,20 @@ target = favorite_data['Anime_id']  # Mục tiêu là gợi ý Anime_id cho ngư
 le_members = LabelEncoder()
 features['Members_Category'] = le_members.fit_transform(features['Members_Category'])
 
-# Chia dữ liệu thành tập huấn luyện và kiểm tra
-X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+# Giả sử features và target đã được chuẩn bị
+X_train = features  # Toàn bộ dữ liệu đặc trưng
+y_train = target    # Toàn bộ nhãn mục tiêu
 
 # Khởi tạo và huấn luyện mô hình Naive Bayes
 nb = GaussianNB()
 nb.fit(X_train, y_train)
 
-# Đánh giá mô hình
-accuracy = nb.score(X_test, y_test)
-print(f"Accuracy: {accuracy}")
+# (Tuỳ chọn) Dự đoán trên chính tập huấn luyện
+y_pred = nb.predict(X_train)
+
+# (Tuỳ chọn) Kiểm tra độ chính xác trên tập huấn luyện
+from sklearn.metrics import accuracy_score
+print("Độ chính xác trên tập huấn luyện:", accuracy_score(y_train, y_pred))
 
 # Hàm gợi ý phim cho người dùng
 @app.post("/")
