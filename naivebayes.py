@@ -47,7 +47,7 @@ df_anime['Members_Category'] = df_anime['Members'].apply(categorize_members)
 
 # 2. Mã hóa cột JapaneseLevel
 le_japanese_level = LabelEncoder()
-df_anime['JapaneseLevel'] = le_japanese_level.fit_transform(df_anime['JanpaneseLevel'])
+df_anime['JapaneseLevel'] = le_japanese_level.fit_transform(df_anime['JapaneseLevel'])
 
 
 # Tạo một đối tượng OneHotEncoder
@@ -74,7 +74,7 @@ favorite_animes = df_favorites[['User_id', 'favorites']]
 favorite_data = df_anime[df_anime['Anime_id'].isin(favorite_animes['favorites'])]
 
 # Đặc trưng đầu vào (features) cho mô hình: Loại bỏ 'Status' và 'Producers', thêm 'Members_Category' và 'JapaneseLevel'
-features = favorite_data[['Score', 'Type', 'Members_Category', 'JapaneseLevel'] + [col for col in df_anime.columns if col not in ['_id', 'Anime_id', 'Name', 'English_Name', 'Favorites', 'Scored_By', 'Member', 'Image_URL', 'JanpaneseLevel', 'LastestEpisodeAired']]]
+features = favorite_data[['Score', 'Type', 'Members_Category', 'JapaneseLevel'] + [col for col in df_anime.columns if col not in ['_id', 'Anime_id', 'Name', 'English_Name', 'Favorites', 'Scored_By', 'Member', 'Image_URL', 'JapaneseLevel', 'LastestEpisodeAired']]]
 target = favorite_data['Anime_id']  # Mục tiêu là gợi ý Anime_id cho người dùng
 
 # Tiền xử lý cho Naive Bayes: Chuyển đổi các cột phân loại thành số
@@ -106,7 +106,7 @@ async def recommend(request: Request):
     potential_animes = df_anime[~df_anime['Anime_id'].isin(user_favorites)]
     
     # Dự đoán các phim mà người dùng có thể thích
-    features = potential_animes[['Score', 'Type', 'Members_Category', 'JapaneseLevel'] + [col for col in df_anime.columns if col not in ['_id', 'Anime_id', 'Name', 'English_Name', 'Favorites', 'Scored_By', 'Member', 'Image_URL', 'JanpaneseLevel', 'LastestEpisodeAired']]]
+    features = potential_animes[['Score', 'Type', 'Members_Category', 'JapaneseLevel'] + [col for col in df_anime.columns if col not in ['_id', 'Anime_id', 'Name', 'English_Name', 'Favorites', 'Scored_By', 'Member', 'Image_URL', 'JapaneseLevel', 'LastestEpisodeAired']]]
     features['Members_Category'] = le_members.transform(features['Members_Category'])  # Mã hóa lại Members_Category
     
     predicted = nb.predict(features)
