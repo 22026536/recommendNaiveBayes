@@ -53,8 +53,8 @@ df_anime['JapaneseLevel'] = le_japanese_level.fit_transform(df_anime['JapaneseLe
 # Tạo một đối tượng OneHotEncoder
 encoder = OneHotEncoder(sparse=False)
 
-# Áp dụng OneHotEncoder cho cột 'Genres'
-genres_encoded = encoder.fit_transform(df_anime['Genres'].apply(lambda x: x.split(',')).values)
+# Áp dụng OneHotEncoder cho cột 'Genres' (dữ liệu đã là mảng)
+genres_encoded = encoder.fit_transform(df_anime['Genres'])
 
 # Chuyển đổi kết quả thành DataFrame với các tên cột mới
 genres_encoded_df = pd.DataFrame(genres_encoded, columns=encoder.get_feature_names_out(['Genres']))
