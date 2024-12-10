@@ -153,7 +153,7 @@ async def recommend_anime(request: Request):
 
     recommended_anime = recommended_anime.head(n)[['Anime_id', 'Name','English name','Score', 'Genres', 'Synopsis','Type','Episodes','Duration', 'Favorites','Scored By','Members','Image URL','Old', 'JapaneseLevel']]
 
-    return recommend_anime
+    return {"recommended_anime": recommended_anime.to_dict(orient="records")}
 
 import uvicorn
 import os
