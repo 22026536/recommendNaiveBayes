@@ -158,5 +158,5 @@ async def recommend_anime(request: Request):
 import uvicorn
 import os
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))  # Render sẽ cung cấp cổng trong biến PORT
+    port = int(os.getenv("PORT", 8000))  # Render sẽ cung cấp cổng trong biến PORT.
     uvicorn.run("naivebayes:app", host="0.0.0.0", port=port)
