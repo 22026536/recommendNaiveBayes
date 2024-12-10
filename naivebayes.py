@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Thêm middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Cho phép tất cả origin
+    allow_origins=["https://animetangobackend.onrender.com"],  # Cho phép tất cả origin
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -138,7 +138,7 @@ def train_naive_bayes(user_id):
 @app.post('/')
 async def recommend_anime(request: Request):
     data = await request.json()
-    user_id = str(data.get("user_id"))
+    user_id = data.get("user_id")
     n = data.get("n", 10)  # Số lượng gợi ý, mặc định là 10
     clf = train_naive_bayes(user_id)
     anime_features = anime_df[genres + ['Favorites_', 'JapaneseLevel_', 'AgeCategory', 'Score_']]
