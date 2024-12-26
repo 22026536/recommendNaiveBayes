@@ -4,6 +4,49 @@ import pandas as pd
 from sklearn.metrics import accuracy_score
 import numpy as np
 
+
+class NaiveBayesClassifier:
+    def __init__(self):
+        self.class_probs = {}  
+        self.feature_probs = {}  
+
+    def fit(self, X, y):
+        unique_classes, class_counts = np.unique(y, return_counts=True)
+        total_samples = len(y)
+        for cls, count in zip(unique_classes, class_counts):
+            self.class_probs[cls] = count / total_samples
+
+
+        self.feature_probs = {cls: {} for cls in unique_classes}
+        for cls in unique_classes:
+            X_cls = X[y == cls]  
+            for feature in X.columns:
+                value_counts = X_cls[feature].value_counts().to_dict()
+                total_feature_count = len(X_cls)
+                feature_prob = {
+                    val: (count + 1) / (total_feature_count + len(X[feature].unique()))
+                    for val, count in value_counts.items()
+                }
+                self.feature_probs[cls][feature] = feature_prob
+
+    
+    def predict(self, X):
+        predictions = []
+        for _, row in X.iterrows():
+            class_scores = {}
+            for cls in self.class_probs:
+                log_prob = np.log(self.class_probs[cls])
+                for feature, value in row.items():
+                    if value in self.feature_probs[cls][feature]:
+                        log_prob += np.log(self.feature_probs[cls][feature][value])
+                    else:
+                        log_prob += np.log(1 / (len(X) + len(X[feature].unique())))
+                class_scores[cls] = log_prob
+            predictions.append(max(class_scores, key=class_scores.get))
+        return predictions
+
+
+
 # Khởi tạo app
 app = FastAPI()
 
@@ -12,7 +55,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # Thêm middleware CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://animetangobackend.onrender.com"],  # Cho phép tất cả origin
+    allow_origins=["https://anime-fawn-five.vercel.app"],  # Cho phép tất cả origin
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -37,7 +80,7 @@ def get_user_ratings(user_id):
 anime_df = get_anime_data()
 anime_df2 = anime_df
 
-# Cập nhật để phân loại cột 'Score' theo các điều kiện
+# Cập nhật để phân loại cột 'Score' theo các điều kiện :
 def categorize_score(score):
     if score < 8:
         return 0  # Loại 0: Score < 8
@@ -111,7 +154,7 @@ def get_user_features(user_id):
 
     return features
 
-from sklearn.naive_bayes import MultinomialNB  # Hoặc GaussianNB nếu phù hợp
+from sklearn.naive_bayes import MultinomialNB  # Hoặc GaussianNB nếu phù hợp.
 def train_naive_bayes(user_id):
     # Lấy dữ liệu gợi ý
     user_features = get_user_features(user_id)
@@ -135,7 +178,7 @@ def train_naive_bayes(user_id):
 
     return clf
 
-@app.post('/')
+@app.post('/naivebayes')
 async def recommend_anime(request: Request):
     data = await request.json()
     user_id = data.get("user_id")
@@ -158,5 +201,5 @@ async def recommend_anime(request: Request):
 import uvicorn
 import os
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 8000))  # Render sẽ cung cấp cổng trong biến PORT.
+    port = int(os.getenv("PORT", 4001))  # Render sẽ cung cấp cổng trong biến PORT.
     uvicorn.run("naivebayes:app", host="0.0.0.0", port=port)
